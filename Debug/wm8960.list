@@ -17,9 +17,9 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   6 .data         000002fc  24000000  08014e8c  00016000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  7 .bss          00002a1c  240002fc  08015188  000162fc  2**2
+  7 .bss          00004a9c  240002fc  08015188  000162fc  2**2
                   ALLOC
-  8 ._user_heap_stack 00000600  24002d18  08015188  00016d18  2**0
+  8 ._user_heap_stack 00000600  24004d98  08015188  00016d98  2**0
                   ALLOC
   9 .ARM.attributes 0000002e  00000000  00000000  000162fc  2**0
                   CONTENTS, READONLY
@@ -35,13 +35,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_line   00023a7c  00000000  00000000  0007a97d  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_str    00163c77  00000000  00000000  0009e3f9  2**0
+ 16 .debug_str    00163c7a  00000000  00000000  0009e3f9  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .comment      00000043  00000000  00000000  00202070  2**0
+ 17 .comment      00000043  00000000  00000000  00202073  2**0
                   CONTENTS, READONLY
- 18 .debug_frame  000078ac  00000000  00000000  002020b4  2**2
+ 18 .debug_frame  000078ac  00000000  00000000  002020b8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_line_str 00000048  00000000  00000000  00209960  2**0
+ 19 .debug_line_str 00000048  00000000  00000000  00209964  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -2865,7 +2865,7 @@ void *_sbrk(ptrdiff_t incr)
  800160c:	24080000 	.word	0x24080000
  8001610:	00000400 	.word	0x00000400
  8001614:	2400062c 	.word	0x2400062c
- 8001618:	24002d18 	.word	0x24002d18
+ 8001618:	24004d98 	.word	0x24004d98
 
 0800161c <SystemInit>:
   *         configuration.
@@ -3627,7 +3627,7 @@ LoopFillZerobss:
   ldr r2, =_sbss
  8001a9c:	240002fc 	.word	0x240002fc
   ldr r4, =_ebss
- 8001aa0:	24002d18 	.word	0x24002d18
+ 8001aa0:	24004d98 	.word	0x24004d98
 
 08001aa4 <ADC3_IRQHandler>:
  * @retval None
@@ -33822,7 +33822,7 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 
   /* Allocate Audio structure */
   haudio = (USBD_AUDIO_HandleTypeDef *)USBD_malloc(sizeof(USBD_AUDIO_HandleTypeDef));
- 800dbbc:	f641 30d0 	movw	r0, #7120	@ 0x1bd0
+ 800dbbc:	f643 4050 	movw	r0, #15440	@ 0x3c50
  800dbc0:	f002 fb70 	bl	80102a4 <USBD_static_malloc>
  800dbc4:	60f8      	str	r0, [r7, #12]
 
@@ -33905,7 +33905,7 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   (void)USBD_LL_OpenEP(pdev, AUDIOOutEpAdd, USBD_EP_TYPE_ISOC, AUDIO_OUT_PACKET);
  800dc46:	4b28      	ldr	r3, [pc, #160]	@ (800dce8 <USBD_AUDIO_Init+0x138>)
  800dc48:	7819      	ldrb	r1, [r3, #0]
- 800dc4a:	2358      	movs	r3, #88	@ 0x58
+ 800dc4a:	23c0      	movs	r3, #192	@ 0xc0
  800dc4c:	2201      	movs	r2, #1
  800dc4e:	6878      	ldr	r0, [r7, #4]
  800dc50:	f002 fa05 	bl	801005e <USBD_LL_OpenEP>
@@ -33929,24 +33929,24 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
  800dc74:	601a      	str	r2, [r3, #0]
   haudio->offset = AUDIO_OFFSET_UNKNOWN;
  800dc76:	68fb      	ldr	r3, [r7, #12]
- 800dc78:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800dc78:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800dc7c:	2203      	movs	r2, #3
- 800dc7e:	f883 2b84 	strb.w	r2, [r3, #2948]	@ 0xb84
+ 800dc7e:	f883 2c04 	strb.w	r2, [r3, #3076]	@ 0xc04
   haudio->wr_ptr = 0U;
  800dc82:	68fb      	ldr	r3, [r7, #12]
- 800dc84:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800dc84:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800dc88:	2200      	movs	r2, #0
- 800dc8a:	f8a3 2b88 	strh.w	r2, [r3, #2952]	@ 0xb88
+ 800dc8a:	f8a3 2c08 	strh.w	r2, [r3, #3080]	@ 0xc08
   haudio->rd_ptr = 0U;
  800dc8e:	68fb      	ldr	r3, [r7, #12]
- 800dc90:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800dc90:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800dc94:	2200      	movs	r2, #0
- 800dc96:	f8a3 2b86 	strh.w	r2, [r3, #2950]	@ 0xb86
+ 800dc96:	f8a3 2c06 	strh.w	r2, [r3, #3078]	@ 0xc06
   haudio->rd_enable = 0U;
  800dc9a:	68fb      	ldr	r3, [r7, #12]
- 800dc9c:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800dc9c:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800dca0:	2200      	movs	r2, #0
- 800dca2:	f883 2b85 	strb.w	r2, [r3, #2949]	@ 0xb85
+ 800dca2:	f883 2c05 	strb.w	r2, [r3, #3077]	@ 0xc05
 
   /* Initialize the Audio output Hardware layer */
   if (((USBD_AUDIO_ItfTypeDef *)pdev->pUserData[pdev->classId])->Init(USBD_AUDIO_FREQ,
@@ -33960,7 +33960,7 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
  800dcb6:	681b      	ldr	r3, [r3, #0]
  800dcb8:	2200      	movs	r2, #0
  800dcba:	2146      	movs	r1, #70	@ 0x46
- 800dcbc:	f245 6054 	movw	r0, #22100	@ 0x5654
+ 800dcbc:	f64b 3080 	movw	r0, #48000	@ 0xbb80
  800dcc0:	4798      	blx	r3
  800dcc2:	4603      	mov	r3, r0
  800dcc4:	2b00      	cmp	r3, #0
@@ -33979,7 +33979,7 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
  800dcce:	7819      	ldrb	r1, [r3, #0]
  800dcd0:	68fb      	ldr	r3, [r7, #12]
  800dcd2:	1d1a      	adds	r2, r3, #4
- 800dcd4:	2358      	movs	r3, #88	@ 0x58
+ 800dcd4:	23c0      	movs	r3, #192	@ 0xc0
  800dcd6:	6878      	ldr	r0, [r7, #4]
  800dcd8:	f002 fab0 	bl	801023c <USBD_LL_PrepareReceive>
                                AUDIO_OUT_PACKET);
@@ -34492,8 +34492,8 @@ static uint8_t USBD_AUDIO_EP0_RxReady(USBD_HandleTypeDef *pdev)
 
   if (haudio->control.cmd == AUDIO_REQ_SET_CUR)
  800dfb4:	68fb      	ldr	r3, [r7, #12]
- 800dfb6:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800dfba:	f893 3b8a 	ldrb.w	r3, [r3, #2954]	@ 0xb8a
+ 800dfb6:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800dfba:	f893 3c0a 	ldrb.w	r3, [r3, #3082]	@ 0xc0a
  800dfbe:	2b01      	cmp	r3, #1
  800dfc0:	d122      	bne.n	800e008 <USBD_AUDIO_EP0_RxReady+0x76>
   {
@@ -34501,8 +34501,8 @@ static uint8_t USBD_AUDIO_EP0_RxReady(USBD_HandleTypeDef *pdev)
 
     if (haudio->control.unit == AUDIO_OUT_STREAMING_CTRL)
  800dfc2:	68fb      	ldr	r3, [r7, #12]
- 800dfc4:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800dfc8:	f893 3bcc 	ldrb.w	r3, [r3, #3020]	@ 0xbcc
+ 800dfc4:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800dfc8:	f893 3c4c 	ldrb.w	r3, [r3, #3148]	@ 0xc4c
  800dfcc:	2b02      	cmp	r3, #2
  800dfce:	d11b      	bne.n	800e008 <USBD_AUDIO_EP0_RxReady+0x76>
     {
@@ -34516,20 +34516,20 @@ static uint8_t USBD_AUDIO_EP0_RxReady(USBD_HandleTypeDef *pdev)
  800dfde:	685b      	ldr	r3, [r3, #4]
  800dfe0:	691b      	ldr	r3, [r3, #16]
  800dfe2:	68fa      	ldr	r2, [r7, #12]
- 800dfe4:	f502 5280 	add.w	r2, r2, #4096	@ 0x1000
- 800dfe8:	f892 2b8b 	ldrb.w	r2, [r2, #2955]	@ 0xb8b
+ 800dfe4:	f502 5240 	add.w	r2, r2, #12288	@ 0x3000
+ 800dfe8:	f892 2c0b 	ldrb.w	r2, [r2, #3083]	@ 0xc0b
  800dfec:	4610      	mov	r0, r2
  800dfee:	4798      	blx	r3
       haudio->control.cmd = 0U;
  800dff0:	68fb      	ldr	r3, [r7, #12]
- 800dff2:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800dff2:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800dff6:	2200      	movs	r2, #0
- 800dff8:	f883 2b8a 	strb.w	r2, [r3, #2954]	@ 0xb8a
+ 800dff8:	f883 2c0a 	strb.w	r2, [r3, #3082]	@ 0xc0a
       haudio->control.len = 0U;
  800dffc:	68fb      	ldr	r3, [r7, #12]
- 800dffe:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800dffe:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800e002:	2200      	movs	r2, #0
- 800e004:	f883 2bcb 	strb.w	r2, [r3, #3019]	@ 0xbcb
+ 800e004:	f883 2c4b 	strb.w	r2, [r3, #3147]	@ 0xc4b
     }
   }
 
@@ -34652,15 +34652,15 @@ static uint8_t USBD_AUDIO_IsoOutIncomplete(USBD_HandleTypeDef *pdev, uint8_t epn
   (void)USBD_LL_PrepareReceive(pdev, epnum,
                                &haudio->buffer[haudio->wr_ptr],
  800e08a:	68fb      	ldr	r3, [r7, #12]
- 800e08c:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e090:	f8b3 3b88 	ldrh.w	r3, [r3, #2952]	@ 0xb88
+ 800e08c:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e090:	f8b3 3c08 	ldrh.w	r3, [r3, #3080]	@ 0xc08
  800e094:	461a      	mov	r2, r3
   (void)USBD_LL_PrepareReceive(pdev, epnum,
  800e096:	68fb      	ldr	r3, [r7, #12]
  800e098:	4413      	add	r3, r2
  800e09a:	1d1a      	adds	r2, r3, #4
  800e09c:	78f9      	ldrb	r1, [r7, #3]
- 800e09e:	2358      	movs	r3, #88	@ 0x58
+ 800e09e:	23c0      	movs	r3, #192	@ 0xc0
  800e0a0:	6878      	ldr	r0, [r7, #4]
  800e0a2:	f002 f8cb 	bl	801023c <USBD_LL_PrepareReceive>
                                AUDIO_OUT_PACKET);
@@ -34736,8 +34736,8 @@ static uint8_t USBD_AUDIO_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
  800e0fc:	685b      	ldr	r3, [r3, #4]
  800e0fe:	695b      	ldr	r3, [r3, #20]
  800e100:	68fa      	ldr	r2, [r7, #12]
- 800e102:	f502 5280 	add.w	r2, r2, #4096	@ 0x1000
- 800e106:	f8b2 2b88 	ldrh.w	r2, [r2, #2952]	@ 0xb88
+ 800e102:	f502 5240 	add.w	r2, r2, #12288	@ 0x3000
+ 800e106:	f8b2 2c08 	ldrh.w	r2, [r2, #3080]	@ 0xc08
  800e10a:	4611      	mov	r1, r2
  800e10c:	68fa      	ldr	r2, [r7, #12]
  800e10e:	440a      	add	r2, r1
@@ -34750,33 +34750,33 @@ static uint8_t USBD_AUDIO_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
     /* Increment the Buffer pointer or roll it back when all buffers are full */
     haudio->wr_ptr += PacketSize;
  800e118:	68fb      	ldr	r3, [r7, #12]
- 800e11a:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e11e:	f8b3 2b88 	ldrh.w	r2, [r3, #2952]	@ 0xb88
+ 800e11a:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e11e:	f8b3 2c08 	ldrh.w	r2, [r3, #3080]	@ 0xc08
  800e122:	897b      	ldrh	r3, [r7, #10]
  800e124:	4413      	add	r3, r2
  800e126:	b29a      	uxth	r2, r3
  800e128:	68fb      	ldr	r3, [r7, #12]
- 800e12a:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e12e:	f8a3 2b88 	strh.w	r2, [r3, #2952]	@ 0xb88
+ 800e12a:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e12e:	f8a3 2c08 	strh.w	r2, [r3, #3080]	@ 0xc08
 
     if (haudio->wr_ptr >= AUDIO_TOTAL_BUF_SIZE)
  800e132:	68fb      	ldr	r3, [r7, #12]
- 800e134:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e138:	f8b3 3b88 	ldrh.w	r3, [r3, #2952]	@ 0xb88
- 800e13c:	f5b3 5fdc 	cmp.w	r3, #7040	@ 0x1b80
+ 800e134:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e138:	f8b3 3c08 	ldrh.w	r3, [r3, #3080]	@ 0xc08
+ 800e13c:	f5b3 5f70 	cmp.w	r3, #15360	@ 0x3c00
  800e140:	d321      	bcc.n	800e186 <USBD_AUDIO_DataOut+0xd6>
     {
       /* All buffers are full: roll back */
       haudio->wr_ptr = 0U;
  800e142:	68fb      	ldr	r3, [r7, #12]
- 800e144:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800e144:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800e148:	2200      	movs	r2, #0
- 800e14a:	f8a3 2b88 	strh.w	r2, [r3, #2952]	@ 0xb88
+ 800e14a:	f8a3 2c08 	strh.w	r2, [r3, #3080]	@ 0xc08
 
       if (haudio->offset == AUDIO_OFFSET_UNKNOWN)
  800e14e:	68fb      	ldr	r3, [r7, #12]
- 800e150:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e154:	f893 3b84 	ldrb.w	r3, [r3, #2948]	@ 0xb84
+ 800e150:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e154:	f893 3c04 	ldrb.w	r3, [r3, #3076]	@ 0xc04
  800e158:	2b03      	cmp	r3, #3
  800e15a:	d114      	bne.n	800e186 <USBD_AUDIO_DataOut+0xd6>
       {
@@ -34792,37 +34792,37 @@ static uint8_t USBD_AUDIO_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
  800e16e:	68fa      	ldr	r2, [r7, #12]
  800e170:	1d10      	adds	r0, r2, #4
  800e172:	2201      	movs	r2, #1
- 800e174:	f44f 615c 	mov.w	r1, #3520	@ 0xdc0
+ 800e174:	f44f 51f0 	mov.w	r1, #7680	@ 0x1e00
  800e178:	4798      	blx	r3
                                                                             AUDIO_TOTAL_BUF_SIZE / 2U,
                                                                             AUDIO_CMD_START);
         haudio->offset = AUDIO_OFFSET_NONE;
  800e17a:	68fb      	ldr	r3, [r7, #12]
- 800e17c:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800e17c:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800e180:	2200      	movs	r2, #0
- 800e182:	f883 2b84 	strb.w	r2, [r3, #2948]	@ 0xb84
+ 800e182:	f883 2c04 	strb.w	r2, [r3, #3076]	@ 0xc04
       }
     }
 
     if (haudio->rd_enable == 0U)
  800e186:	68fb      	ldr	r3, [r7, #12]
- 800e188:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e18c:	f893 3b85 	ldrb.w	r3, [r3, #2949]	@ 0xb85
+ 800e188:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e18c:	f893 3c05 	ldrb.w	r3, [r3, #3077]	@ 0xc05
  800e190:	2b00      	cmp	r3, #0
  800e192:	d10d      	bne.n	800e1b0 <USBD_AUDIO_DataOut+0x100>
     {
       if (haudio->wr_ptr == (AUDIO_TOTAL_BUF_SIZE / 2U))
  800e194:	68fb      	ldr	r3, [r7, #12]
- 800e196:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e19a:	f8b3 3b88 	ldrh.w	r3, [r3, #2952]	@ 0xb88
- 800e19e:	f5b3 6f5c 	cmp.w	r3, #3520	@ 0xdc0
+ 800e196:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e19a:	f8b3 3c08 	ldrh.w	r3, [r3, #3080]	@ 0xc08
+ 800e19e:	f5b3 5ff0 	cmp.w	r3, #7680	@ 0x1e00
  800e1a2:	d105      	bne.n	800e1b0 <USBD_AUDIO_DataOut+0x100>
       {
         haudio->rd_enable = 1U;
  800e1a4:	68fb      	ldr	r3, [r7, #12]
- 800e1a6:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800e1a6:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800e1aa:	2201      	movs	r2, #1
- 800e1ac:	f883 2b85 	strb.w	r2, [r3, #2949]	@ 0xb85
+ 800e1ac:	f883 2c05 	strb.w	r2, [r3, #3077]	@ 0xc05
       }
     }
 
@@ -34832,14 +34832,14 @@ static uint8_t USBD_AUDIO_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum)
  800e1b2:	7819      	ldrb	r1, [r3, #0]
                                  &haudio->buffer[haudio->wr_ptr],
  800e1b4:	68fb      	ldr	r3, [r7, #12]
- 800e1b6:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e1ba:	f8b3 3b88 	ldrh.w	r3, [r3, #2952]	@ 0xb88
+ 800e1b6:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e1ba:	f8b3 3c08 	ldrh.w	r3, [r3, #3080]	@ 0xc08
  800e1be:	461a      	mov	r2, r3
     (void)USBD_LL_PrepareReceive(pdev, AUDIOOutEpAdd,
  800e1c0:	68fb      	ldr	r3, [r7, #12]
  800e1c2:	4413      	add	r3, r2
  800e1c4:	1d1a      	adds	r2, r3, #4
- 800e1c6:	2358      	movs	r3, #88	@ 0x58
+ 800e1c6:	23c0      	movs	r3, #192	@ 0xc0
  800e1c8:	6878      	ldr	r0, [r7, #4]
  800e1ca:	f002 f837 	bl	801023c <USBD_LL_PrepareReceive>
                                  AUDIO_OUT_PACKET);
@@ -34885,7 +34885,7 @@ static void AUDIO_REQ_GetCurrent(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
 
   (void)USBD_memset(haudio->control.data, 0, USB_MAX_EP0_SIZE);
  800e1fc:	68fa      	ldr	r2, [r7, #12]
- 800e1fe:	f641 338b 	movw	r3, #7051	@ 0x1b8b
+ 800e1fe:	f643 430b 	movw	r3, #15371	@ 0x3c0b
  800e202:	4413      	add	r3, r2
  800e204:	2240      	movs	r2, #64	@ 0x40
  800e206:	2100      	movs	r1, #0
@@ -34895,7 +34895,7 @@ static void AUDIO_REQ_GetCurrent(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
   /* Send the current mute state */
   (void)USBD_CtlSendData(pdev, haudio->control.data,
  800e20e:	68fa      	ldr	r2, [r7, #12]
- 800e210:	f641 338b 	movw	r3, #7051	@ 0x1b8b
+ 800e210:	f643 430b 	movw	r3, #15371	@ 0x3c0b
  800e214:	4413      	add	r3, r2
                          MIN(req->wLength, USB_MAX_EP0_SIZE));
  800e216:	683a      	ldr	r2, [r7, #0]
@@ -34953,9 +34953,9 @@ static void AUDIO_REQ_SetCurrent(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
   {
     haudio->control.cmd = AUDIO_REQ_SET_CUR;     /* Set the request value */
  800e25c:	68fb      	ldr	r3, [r7, #12]
- 800e25e:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
+ 800e25e:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
  800e262:	2201      	movs	r2, #1
- 800e264:	f883 2b8a 	strb.w	r2, [r3, #2954]	@ 0xb8a
+ 800e264:	f883 2c0a 	strb.w	r2, [r3, #3082]	@ 0xc0a
     haudio->control.len = (uint8_t)MIN(req->wLength, USB_MAX_EP0_SIZE);  /* Set the request data length */
  800e268:	683b      	ldr	r3, [r7, #0]
  800e26a:	88db      	ldrh	r3, [r3, #6]
@@ -34967,8 +34967,8 @@ static void AUDIO_REQ_SetCurrent(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
  800e276:	e000      	b.n	800e27a <AUDIO_REQ_SetCurrent+0x46>
  800e278:	2240      	movs	r2, #64	@ 0x40
  800e27a:	68fb      	ldr	r3, [r7, #12]
- 800e27c:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e280:	f883 2bcb 	strb.w	r2, [r3, #3019]	@ 0xbcb
+ 800e27c:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e280:	f883 2c4b 	strb.w	r2, [r3, #3147]	@ 0xc4b
     haudio->control.unit = HIBYTE(req->wIndex);  /* Set the request target unit */
  800e284:	683b      	ldr	r3, [r7, #0]
  800e286:	889b      	ldrh	r3, [r3, #4]
@@ -34976,17 +34976,17 @@ static void AUDIO_REQ_SetCurrent(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
  800e28a:	b29b      	uxth	r3, r3
  800e28c:	b2da      	uxtb	r2, r3
  800e28e:	68fb      	ldr	r3, [r7, #12]
- 800e290:	f503 5380 	add.w	r3, r3, #4096	@ 0x1000
- 800e294:	f883 2bcc 	strb.w	r2, [r3, #3020]	@ 0xbcc
+ 800e290:	f503 5340 	add.w	r3, r3, #12288	@ 0x3000
+ 800e294:	f883 2c4c 	strb.w	r2, [r3, #3148]	@ 0xc4c
 
     /* Prepare the reception of the buffer over EP0 */
     (void)USBD_CtlPrepareRx(pdev, haudio->control.data, haudio->control.len);
  800e298:	68fa      	ldr	r2, [r7, #12]
- 800e29a:	f641 338b 	movw	r3, #7051	@ 0x1b8b
+ 800e29a:	f643 430b 	movw	r3, #15371	@ 0x3c0b
  800e29e:	4413      	add	r3, r2
  800e2a0:	68fa      	ldr	r2, [r7, #12]
- 800e2a2:	f502 5280 	add.w	r2, r2, #4096	@ 0x1000
- 800e2a6:	f892 2bcb 	ldrb.w	r2, [r2, #3019]	@ 0xbcb
+ 800e2a2:	f502 5240 	add.w	r2, r2, #12288	@ 0x3000
+ 800e2a6:	f892 2c4b 	ldrb.w	r2, [r2, #3147]	@ 0xc4b
  800e2aa:	4619      	mov	r1, r3
  800e2ac:	6878      	ldr	r0, [r7, #4]
  800e2ae:	f001 fb01 	bl	800f8b4 <USBD_CtlPrepareRx>
@@ -42371,7 +42371,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8010ffc:	0801126b 	.word	0x0801126b
  8011000:	080112a3 	.word	0x080112a3
  8011004:	080112c7 	.word	0x080112c7
- 8011008:	24002bcc 	.word	0x24002bcc
+ 8011008:	24004c4c 	.word	0x24004c4c
 
 0801100c <stdio_exit_handler>:
  801100c:	4a02      	ldr	r2, [pc, #8]	@ (8011018 <stdio_exit_handler+0xc>)
@@ -42406,9 +42406,9 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8011050:	f002 bf3c 	b.w	8013ecc <_fflush_r>
  8011054:	bd10      	pop	{r4, pc}
  8011056:	bf00      	nop
- 8011058:	24002bcc 	.word	0x24002bcc
- 801105c:	24002c34 	.word	0x24002c34
- 8011060:	24002c9c 	.word	0x24002c9c
+ 8011058:	24004c4c 	.word	0x24004c4c
+ 801105c:	24004cb4 	.word	0x24004cb4
+ 8011060:	24004d1c 	.word	0x24004d1c
 
 08011064 <global_stdio_init.part.0>:
  8011064:	b510      	push	{r4, lr}
@@ -42429,21 +42429,21 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  801108a:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
  801108e:	2112      	movs	r1, #18
  8011090:	f7ff bf86 	b.w	8010fa0 <std>
- 8011094:	24002d04 	.word	0x24002d04
- 8011098:	24002bcc 	.word	0x24002bcc
+ 8011094:	24004d84 	.word	0x24004d84
+ 8011098:	24004c4c 	.word	0x24004c4c
  801109c:	0801100d 	.word	0x0801100d
 
 080110a0 <__sfp_lock_acquire>:
  80110a0:	4801      	ldr	r0, [pc, #4]	@ (80110a8 <__sfp_lock_acquire+0x8>)
  80110a2:	f000 ba26 	b.w	80114f2 <__retarget_lock_acquire_recursive>
  80110a6:	bf00      	nop
- 80110a8:	24002d0d 	.word	0x24002d0d
+ 80110a8:	24004d8d 	.word	0x24004d8d
 
 080110ac <__sfp_lock_release>:
  80110ac:	4801      	ldr	r0, [pc, #4]	@ (80110b4 <__sfp_lock_release+0x8>)
  80110ae:	f000 ba21 	b.w	80114f4 <__retarget_lock_release_recursive>
  80110b2:	bf00      	nop
- 80110b4:	24002d0d 	.word	0x24002d0d
+ 80110b4:	24004d8d 	.word	0x24004d8d
 
 080110b8 <__sinit>:
  80110b8:	b510      	push	{r4, lr}
@@ -42463,7 +42463,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  80110dc:	e7f2      	b.n	80110c4 <__sinit+0xc>
  80110de:	bf00      	nop
  80110e0:	08011025 	.word	0x08011025
- 80110e4:	24002d04 	.word	0x24002d04
+ 80110e4:	24004d84 	.word	0x24004d84
 
 080110e8 <_fwalk_sglue>:
  80110e8:	e92d 43f8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, lr}
@@ -42846,7 +42846,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8011426:	b103      	cbz	r3, 801142a <_close_r+0x1a>
  8011428:	6023      	str	r3, [r4, #0]
  801142a:	bd38      	pop	{r3, r4, r5, pc}
- 801142c:	24002d08 	.word	0x24002d08
+ 801142c:	24004d88 	.word	0x24004d88
 
 08011430 <_lseek_r>:
  8011430:	b538      	push	{r3, r4, r5, lr}
@@ -42864,7 +42864,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  801144a:	b103      	cbz	r3, 801144e <_lseek_r+0x1e>
  801144c:	6023      	str	r3, [r4, #0]
  801144e:	bd38      	pop	{r3, r4, r5, pc}
- 8011450:	24002d08 	.word	0x24002d08
+ 8011450:	24004d88 	.word	0x24004d88
 
 08011454 <_read_r>:
  8011454:	b538      	push	{r3, r4, r5, lr}
@@ -42882,7 +42882,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  801146e:	b103      	cbz	r3, 8011472 <_read_r+0x1e>
  8011470:	6023      	str	r3, [r4, #0]
  8011472:	bd38      	pop	{r3, r4, r5, pc}
- 8011474:	24002d08 	.word	0x24002d08
+ 8011474:	24004d88 	.word	0x24004d88
 
 08011478 <_write_r>:
  8011478:	b538      	push	{r3, r4, r5, lr}
@@ -42900,7 +42900,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8011492:	b103      	cbz	r3, 8011496 <_write_r+0x1e>
  8011494:	6023      	str	r3, [r4, #0]
  8011496:	bd38      	pop	{r3, r4, r5, pc}
- 8011498:	24002d08 	.word	0x24002d08
+ 8011498:	24004d88 	.word	0x24004d88
 
 0801149c <__errno>:
  801149c:	4b01      	ldr	r3, [pc, #4]	@ (80114a4 <__errno+0x8>)
@@ -44157,7 +44157,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  801215e:	e7ca      	b.n	80120f6 <_free_r+0x22>
  8012160:	bd38      	pop	{r3, r4, r5, pc}
  8012162:	bf00      	nop
- 8012164:	24002d14 	.word	0x24002d14
+ 8012164:	24004d94 	.word	0x24004d94
 
 08012168 <malloc>:
  8012168:	4b02      	ldr	r3, [pc, #8]	@ (8012174 <malloc+0xc>)
@@ -44195,7 +44195,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  80121b2:	d1f2      	bne.n	801219a <sbrk_aligned+0x22>
  80121b4:	e7ef      	b.n	8012196 <sbrk_aligned+0x1e>
  80121b6:	bf00      	nop
- 80121b8:	24002d10 	.word	0x24002d10
+ 80121b8:	24004d90 	.word	0x24004d90
 
 080121bc <_malloc_r>:
  80121bc:	e92d 43f8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, lr}
@@ -44305,19 +44305,19 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  80122b2:	6005      	str	r5, [r0, #0]
  80122b4:	e7d6      	b.n	8012264 <_malloc_r+0xa8>
  80122b6:	bf00      	nop
- 80122b8:	24002d14 	.word	0x24002d14
+ 80122b8:	24004d94 	.word	0x24004d94
 
 080122bc <__malloc_lock>:
  80122bc:	4801      	ldr	r0, [pc, #4]	@ (80122c4 <__malloc_lock+0x8>)
  80122be:	f7ff b918 	b.w	80114f2 <__retarget_lock_acquire_recursive>
  80122c2:	bf00      	nop
- 80122c4:	24002d0c 	.word	0x24002d0c
+ 80122c4:	24004d8c 	.word	0x24004d8c
 
 080122c8 <__malloc_unlock>:
  80122c8:	4801      	ldr	r0, [pc, #4]	@ (80122d0 <__malloc_unlock+0x8>)
  80122ca:	f7ff b913 	b.w	80114f4 <__retarget_lock_release_recursive>
  80122ce:	bf00      	nop
- 80122d0:	24002d0c 	.word	0x24002d0c
+ 80122d0:	24004d8c 	.word	0x24004d8c
 
 080122d4 <_Balloc>:
  80122d4:	b570      	push	{r4, r5, r6, lr}
@@ -47299,7 +47299,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8014052:	6023      	str	r3, [r4, #0]
  8014054:	bd38      	pop	{r3, r4, r5, pc}
  8014056:	bf00      	nop
- 8014058:	24002d08 	.word	0x24002d08
+ 8014058:	24004d88 	.word	0x24004d88
 
 0801405c <_isatty_r>:
  801405c:	b538      	push	{r3, r4, r5, lr}
@@ -47315,7 +47315,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8014072:	b103      	cbz	r3, 8014076 <_isatty_r+0x1a>
  8014074:	6023      	str	r3, [r4, #0]
  8014076:	bd38      	pop	{r3, r4, r5, pc}
- 8014078:	24002d08 	.word	0x24002d08
+ 8014078:	24004d88 	.word	0x24004d88
 
 0801407c <_sbrk_r>:
  801407c:	b538      	push	{r3, r4, r5, lr}
@@ -47331,7 +47331,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8014092:	b103      	cbz	r3, 8014096 <_sbrk_r+0x1a>
  8014094:	6023      	str	r3, [r4, #0]
  8014096:	bd38      	pop	{r3, r4, r5, pc}
- 8014098:	24002d08 	.word	0x24002d08
+ 8014098:	24004d88 	.word	0x24004d88
 
 0801409c <memcpy>:
  801409c:	440a      	add	r2, r1
@@ -48233,7 +48233,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  80148f6:	6023      	str	r3, [r4, #0]
  80148f8:	bd38      	pop	{r3, r4, r5, pc}
  80148fa:	bf00      	nop
- 80148fc:	24002d08 	.word	0x24002d08
+ 80148fc:	24004d88 	.word	0x24004d88
 
 08014900 <_getpid_r>:
  8014900:	f7ec bde2 	b.w	80014c8 <_getpid>
