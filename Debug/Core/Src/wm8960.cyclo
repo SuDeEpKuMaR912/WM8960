@@ -1,0 +1,3 @@
+../Core/Src/wm8960.c:5:26:wm8960_write	1
+../Core/Src/wm8960.c:12:6:WM8960_IsReady	1
+../Core/Src/wm8960.c:17:19:WM8960_Init	1
