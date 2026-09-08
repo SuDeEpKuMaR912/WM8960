@@ -136,7 +136,6 @@ int main(void)
   HAL_StatusTypeDef init_result = WM8960_Init(&hi2c1);
   printf("Init sequence result: %d (0=OK)\r\n", init_result);
 
-  printf("I2S TX start result: %d (0=OK)\r\n", tx_result);
   /* USER CODE END 2 */
 
   /* Infinite loop */
