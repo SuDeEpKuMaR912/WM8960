@@ -54,7 +54,11 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 #define SINE_LEN 256
+
 int16_t tx_buf[SINE_LEN * 2];
+
+volatile uint32_t sai_half_count = 0;
+volatile uint32_t sai_full_count = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,13 +138,16 @@ int main(void)
 
   Fill_Sine_Buffer();
   HAL_StatusTypeDef tx_result = HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t*)tx_buf, SINE_LEN * 2);
-  printf("SAI TX start result: %d (0=OK)\r\n", tx_result);
+  printf("I2S TX start result: %d (0=OK)\r\n", tx_result);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  HAL_Delay(1000);
+
+	  printf("I2S state=%d | Half=%lu | Full=%lu\r\n", HAL_SAI_GetState(&hsai_BlockA1), sai_half_count, sai_full_count);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -431,7 +438,21 @@ static void Fill_Sine_Buffer(void)
     }
 }
 
+void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai)
+{
+    if (hsai == &hsai_BlockA1)
+    {
+        sai_half_count++;
+    }
+}
 
+void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai)
+{
+    if (hsai == &hsai_BlockA1)
+    {
+        sai_full_count++;
+    }
+}
 /* USER CODE END 4 */
 
 /**
