@@ -70,5 +70,12 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     //Output mixer enable (LOMIX/ROMIX)
     ret |= wm8960_write(hi2c, 0x2F, 0x00C);
 
+    // Speaker volume: 0 dB, unmuted
+    ret |= wm8960_write(hi2c, 0x28, 0x179);
+    ret |= wm8960_write(hi2c, 0x29, 0x179);
+
+    // Enable Class-D left + right, preserving reserved/default bits
+    ret |= wm8960_write(hi2c, 0x31, 0x0F7);
+
     return ret;
 }
