@@ -61,6 +61,7 @@ int16_t tx_buf[SAI_AUDIO_SAMPLES];
 volatile uint32_t sai_half_count = 0;
 volatile uint32_t sai_full_count = 0;
 
+extern volatile uint32_t usb_write_pos;
 extern volatile uint8_t audio_start_pending;
 extern volatile uint8_t audio_stream_started;
 /* USER CODE END PV */
@@ -145,16 +146,36 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if (audio_start_pending &&
-	      !audio_stream_started)
+	  static uint32_t last_print = 0;
+
+	  if (audio_start_pending && !audio_stream_started)
 	  {
-	      HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t *)tx_buf, SAI_AUDIO_SAMPLES);
+	      HAL_StatusTypeDef sai_result;
+	      sai_result = HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t *)tx_buf, SAI_AUDIO_SAMPLES);
 
-	      audio_stream_started = 1;
-	      audio_start_pending = 0;
+	      printf("HAL_SAI_Transmit_DMA result = %d\r\n", sai_result);
 
-	      printf("SAI audio streaming started\r\n");
-	  }
+	      if (sai_result == HAL_OK)
+	      {
+	          audio_stream_started = 1;
+	          audio_start_pending = 0;
+
+	          printf("SAI audio streaming started\r\n");
+	      }
+	      else
+	      {
+	          printf("SAI DMA START FAILED\r\n");
+	          audio_start_pending = 0;
+	      }
+	   }
+
+	   if ((HAL_GetTick() - last_print) >= 1000U)
+	   {
+	       last_print = HAL_GetTick();
+
+	       printf("SAI half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
+	              usb_write_pos, tx_buf[0], tx_buf[1], tx_buf[100], tx_buf[101]);
+	   }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

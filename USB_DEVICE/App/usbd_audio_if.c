@@ -38,7 +38,7 @@
 
 extern int16_t tx_buf[SAI_AUDIO_SAMPLES];
 
-static volatile uint32_t usb_write_pos = 0;
+volatile uint32_t usb_write_pos = 0;
 volatile uint8_t audio_start_pending = 0;
 volatile uint8_t audio_stream_started = 0;
 /* USER CODE END PV */
