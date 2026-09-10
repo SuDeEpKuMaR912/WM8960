@@ -937,14 +937,14 @@ int main(void)
  8000b7c:	2200      	movs	r2, #0
  8000b7e:	701a      	strb	r2, [r3, #0]
 
-	          printf("SAI audio streaming started\r\n");
+	          printf("I2S audio streaming started\r\n");
  8000b80:	4829      	ldr	r0, [pc, #164]	@ (8000c28 <main+0x158>)
  8000b82:	f010 fbc7 	bl	8011314 <puts>
  8000b86:	e005      	b.n	8000b94 <main+0xc4>
 	      }
 	      else
 	      {
-	          printf("SAI DMA START FAILED\r\n");
+	          printf("I2S DMA START FAILED\r\n");
  8000b88:	4828      	ldr	r0, [pc, #160]	@ (8000c2c <main+0x15c>)
  8000b8a:	f010 fbc3 	bl	8011314 <puts>
 	          audio_start_pending = 0;
@@ -969,7 +969,7 @@ int main(void)
  8000bac:	4a20      	ldr	r2, [pc, #128]	@ (8000c30 <main+0x160>)
  8000bae:	6013      	str	r3, [r2, #0]
 
-	       printf("SAI half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
+	       printf("I2S half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
  8000bb0:	4b20      	ldr	r3, [pc, #128]	@ (8000c34 <main+0x164>)
  8000bb2:	681c      	ldr	r4, [r3, #0]
  8000bb4:	4b20      	ldr	r3, [pc, #128]	@ (8000c38 <main+0x168>)
@@ -983,22 +983,22 @@ int main(void)
 	              usb_write_pos, tx_buf[0], tx_buf[1], tx_buf[100], tx_buf[101]);
  8000bc6:	4a15      	ldr	r2, [pc, #84]	@ (8000c1c <main+0x14c>)
  8000bc8:	f9b2 2000 	ldrsh.w	r2, [r2]
-	       printf("SAI half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
+	       printf("I2S half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
  8000bcc:	4611      	mov	r1, r2
 	              usb_write_pos, tx_buf[0], tx_buf[1], tx_buf[100], tx_buf[101]);
  8000bce:	4a13      	ldr	r2, [pc, #76]	@ (8000c1c <main+0x14c>)
  8000bd0:	f9b2 2002 	ldrsh.w	r2, [r2, #2]
-	       printf("SAI half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
+	       printf("I2S half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
  8000bd4:	4610      	mov	r0, r2
 	              usb_write_pos, tx_buf[0], tx_buf[1], tx_buf[100], tx_buf[101]);
  8000bd6:	4a11      	ldr	r2, [pc, #68]	@ (8000c1c <main+0x14c>)
  8000bd8:	f9b2 20c8 	ldrsh.w	r2, [r2, #200]	@ 0xc8
-	       printf("SAI half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
+	       printf("I2S half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
  8000bdc:	4616      	mov	r6, r2
 	              usb_write_pos, tx_buf[0], tx_buf[1], tx_buf[100], tx_buf[101]);
  8000bde:	4a0f      	ldr	r2, [pc, #60]	@ (8000c1c <main+0x14c>)
  8000be0:	f9b2 20ca 	ldrsh.w	r2, [r2, #202]	@ 0xca
-	       printf("SAI half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
+	       printf("I2S half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
  8000be4:	9204      	str	r2, [sp, #16]
  8000be6:	9603      	str	r6, [sp, #12]
  8000be8:	9002      	str	r0, [sp, #8]

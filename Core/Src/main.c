@@ -160,11 +160,11 @@ int main(void)
 	          audio_stream_started = 1;
 	          audio_start_pending = 0;
 
-	          printf("SAI audio streaming started\r\n");
+	          printf("I2S audio streaming started\r\n");
 	      }
 	      else
 	      {
-	          printf("SAI DMA START FAILED\r\n");
+	          printf("I2S DMA START FAILED\r\n");
 	          audio_start_pending = 0;
 	      }
 	   }
@@ -173,7 +173,7 @@ int main(void)
 	   {
 	       last_print = HAL_GetTick();
 
-	       printf("SAI half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
+	       printf("I2S half=%lu full=%lu state=%d USBpos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
 	              usb_write_pos, tx_buf[0], tx_buf[1], tx_buf[100], tx_buf[101]);
 	   }
     /* USER CODE END WHILE */
