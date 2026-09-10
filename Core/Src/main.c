@@ -60,6 +60,9 @@ int16_t tx_buf[SAI_AUDIO_SAMPLES];
 
 volatile uint32_t sai_half_count = 0;
 volatile uint32_t sai_full_count = 0;
+
+extern volatile uint8_t audio_start_pending;
+extern volatile uint8_t audio_stream_started;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -142,9 +145,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_Delay(1000);
+	  if (audio_start_pending &&
+	      !audio_stream_started)
+	  {
+	      HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t *)tx_buf, SAI_AUDIO_SAMPLES);
 
-	  printf("I2S state=%d | Half=%lu | Full=%lu\r\n", HAL_SAI_GetState(&hsai_BlockA1), sai_half_count, sai_full_count);
+	      audio_stream_started = 1;
+	      audio_start_pending = 0;
+
+	      printf("SAI audio streaming started\r\n");
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -33,9 +33,14 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-#define AUDIO_BUFFER_SIZE 1024
+#define USB_AUDIO_PACKET_BYTES 192U
+#define SAI_AUDIO_SAMPLES      3840U
 
-int16_t audio_buffer[AUDIO_BUFFER_SIZE];
+extern int16_t tx_buf[SAI_AUDIO_SAMPLES];
+
+static volatile uint32_t usb_write_pos = 0;
+volatile uint8_t audio_start_pending = 0;
+volatile uint8_t audio_stream_started = 0;
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -187,26 +192,30 @@ static int8_t AUDIO_DeInit_FS(uint32_t options)
 static int8_t AUDIO_AudioCmd_FS(uint8_t* pbuf, uint32_t size, uint8_t cmd)
 {
   /* USER CODE BEGIN 2 */
-	 switch (cmd)
-	  {
-	    case AUDIO_CMD_START:
-	    case AUDIO_CMD_PLAY:
-	      if (size != 0U)
-	      {
-	        HAL_SAI_Transmit_DMA(&hsai_BlockA1, pbuf, size / sizeof(uint16_t));
-	      }
+	UNUSED(pbuf);
+	UNUSED(size);
 
-	      break;
+	switch (cmd)
+	{
+	    case AUDIO_CMD_START:
+	         audio_start_pending = 1;
+	         break;
+
+	    case AUDIO_CMD_PLAY:
+	         break;
 
 	    case AUDIO_CMD_STOP:
-	      HAL_SAI_DMAStop(&hsai_BlockA1);
-	      break;
+	         HAL_SAI_DMAStop(&hsai_BlockA1);
+	         audio_stream_started = 0;
+	         audio_start_pending = 0;
+	         usb_write_pos = 0;
+	         break;
 
 	    default:
 	      break;
-	  }
+	    }
 
-	 return USBD_OK;
+	    return USBD_OK;
   /* USER CODE END 2 */
 }
 
@@ -244,10 +253,26 @@ static int8_t AUDIO_MuteCtl_FS(uint8_t cmd)
 static int8_t AUDIO_PeriodicTC_FS(uint8_t *pbuf, uint32_t size, uint8_t cmd)
 {
   /* USER CODE BEGIN 5 */
-  UNUSED(pbuf);
-  UNUSED(size);
-  UNUSED(cmd);
-  return (USBD_OK);
+	UNUSED(cmd);
+
+	if ((pbuf == NULL) || (size == 0U))
+	{
+	    return USBD_OK;
+	}
+
+	if ((usb_write_pos + size) <= (SAI_AUDIO_SAMPLES * sizeof(int16_t)))
+	{
+	    memcpy((uint8_t *)tx_buf + usb_write_pos, pbuf, size);
+
+	    usb_write_pos += size;
+
+	    if (usb_write_pos == (SAI_AUDIO_SAMPLES * sizeof(int16_t)))
+	    {
+	       usb_write_pos = 0;
+	    }
+	}
+
+	return USBD_OK;
   /* USER CODE END 5 */
 }
 
