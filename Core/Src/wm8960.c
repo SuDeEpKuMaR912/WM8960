@@ -41,6 +41,11 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     //Audio Interface — FORMAT=I2S, WL=16-bit, MS=0(slave)
     ret |= wm8960_write(hi2c, 0x07, 0x002);
 
+    // Use DACLRC as the frame clock for the ADC.
+    // The Waveshare board exposes DACLRC/I2S_LRCLK,
+    // but does not expose ADCLRC/GPIO1.
+    ret |= wm8960_write(hi2c, 0x09, 0x040);
+
     // DAC control — unmute digital DAC
     ret |= wm8960_write(hi2c, 0x05, 0x000);
 
