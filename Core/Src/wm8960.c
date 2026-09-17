@@ -39,11 +39,15 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     ret |= wm8960_write(hi2c, 0x04, 0x005);
 
     //Audio Interface — FORMAT=I2S, WL=16-bit, MS=0(slave)
-    ret |= wm8960_write(hi2c, 0x07, 0x004);
+    ret |= wm8960_write(hi2c, 0x07, 0x002);
+
+    // DAC control — unmute digital DAC
+    ret |= wm8960_write(hi2c, 0x05, 0x000);
 
     //DAC L/R volume, 0dB, write twice to latch
     ret |= wm8960_write(hi2c, 0x0A, 0x1FF);
     ret |= wm8960_write(hi2c, 0x0A, 0x1FF);
+
     ret |= wm8960_write(hi2c, 0x0B, 0x1FF);
     ret |= wm8960_write(hi2c, 0x0B, 0x1FF);
 
@@ -54,7 +58,7 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     ret |= wm8960_write(hi2c, 0x16, 0x1C3);
 
     //Power Mgmt 1 — VMID, VREF, AIN, ADC on
-    ret |= wm8960_write(hi2c, 0x19, 0x0FC);
+    ret |= wm8960_write(hi2c, 0x19, 0x1FC);
 
     //Power Mgmt 2 — DAC, LOUT1/ROUT1, SPK, PLL enable
     ret |= wm8960_write(hi2c, 0x1A, 0x1FB);
@@ -63,7 +67,7 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     ret |= wm8960_write(hi2c, 0x20, 0x000);
     ret |= wm8960_write(hi2c, 0x21, 0x000);
 
-    //Output mixer — route DAC into LOUT1/ROUT1 mix path
+    // DAC → left/right output mixers
     ret |= wm8960_write(hi2c, 0x22, 0x100);
     ret |= wm8960_write(hi2c, 0x25, 0x100);
 

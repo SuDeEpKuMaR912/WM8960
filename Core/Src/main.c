@@ -133,13 +133,13 @@ int main(void)
   if (!WM8960_IsReady(&hi2c1))
   {
       printf("WM8960 NOT FOUND on I2C bus\r\n");
-      Error_Handler();
   }
-  printf("WM8960 ACK received\r\n");
-
-  HAL_StatusTypeDef init_result = WM8960_Init(&hi2c1);
-  printf("Init sequence result: %d (0=OK)\r\n", init_result);
-
+  else
+  {
+	  printf("WM8960 ACK received\r\n");
+	  HAL_StatusTypeDef init_result = WM8960_Init(&hi2c1);
+	  printf("Init sequence result: %d (0=OK)\r\n", init_result);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
