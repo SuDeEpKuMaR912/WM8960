@@ -47,7 +47,6 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     //DAC L/R volume, 0dB, write twice to latch
     ret |= wm8960_write(hi2c, 0x0A, 0x1FF);
     ret |= wm8960_write(hi2c, 0x0A, 0x1FF);
-
     ret |= wm8960_write(hi2c, 0x0B, 0x1FF);
     ret |= wm8960_write(hi2c, 0x0B, 0x1FF);
 
@@ -57,22 +56,26 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     ret |= wm8960_write(hi2c, 0x16, 0x1C3);
     ret |= wm8960_write(hi2c, 0x16, 0x1C3);
 
+    //INPUT PGA GAIN: Left  = 0 dB, Right = 0 dB
+    ret |= wm8960_write(hi2c, 0x00, 0x117);
+    ret |= wm8960_write(hi2c, 0x01, 0x117);
+
     //Power Mgmt 1 — VMID, VREF, AIN, ADC on
-    ret |= wm8960_write(hi2c, 0x19, 0x1FC);
+    ret |= wm8960_write(hi2c, 0x19, 0x0FC);
 
     //Power Mgmt 2 — DAC, LOUT1/ROUT1, SPK, PLL enable
     ret |= wm8960_write(hi2c, 0x1A, 0x1FB);
 
     //Input boost mixers (left/right) — left at defaults for now
-    ret |= wm8960_write(hi2c, 0x20, 0x000);
-    ret |= wm8960_write(hi2c, 0x21, 0x000);
+    ret |= wm8960_write(hi2c, 0x20, 0x100);
+    ret |= wm8960_write(hi2c, 0x21, 0x100);
 
     // DAC → left/right output mixers
     ret |= wm8960_write(hi2c, 0x22, 0x100);
     ret |= wm8960_write(hi2c, 0x25, 0x100);
 
     //Output mixer enable (LOMIX/ROMIX)
-    ret |= wm8960_write(hi2c, 0x2F, 0x00C);
+    ret |= wm8960_write(hi2c, 0x2F, 0x03C);
 
     // Speaker volume: 0 dB, unmuted
     ret |= wm8960_write(hi2c, 0x28, 0x179);

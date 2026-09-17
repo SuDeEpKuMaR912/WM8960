@@ -57,9 +57,12 @@ UART_HandleTypeDef huart3;
 #define SAI_AUDIO_SAMPLES 3840
 
 int16_t tx_buf[SAI_AUDIO_SAMPLES];
+int16_t rx_buf[SAI_AUDIO_SAMPLES];
 
 volatile uint32_t sai_half_count = 0;
 volatile uint32_t sai_full_count = 0;
+volatile uint32_t sai_rx_half_count = 0;
+volatile uint32_t sai_rx_full_count = 0;
 
 extern volatile uint32_t usb_write_pos;
 extern volatile uint8_t audio_start_pending;
@@ -84,6 +87,22 @@ int _write(int file, char *ptr, int len)
 {
     HAL_UART_Transmit(&huart3, (uint8_t*)ptr, len, HAL_MAX_DELAY);
     return len;
+}
+
+void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai)
+{
+    if (hsai == &hsai_BlockB1)
+    {
+        sai_rx_half_count++;
+    }
+}
+
+void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai)
+{
+    if (hsai == &hsai_BlockB1)
+    {
+        sai_rx_full_count++;
+    }
 }
 /* USER CODE END 0 */
 
