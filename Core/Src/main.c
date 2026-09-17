@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -53,24 +54,28 @@ DMA_HandleTypeDef hdma_sai1_b;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-#define SINE_LEN 256
+#define SAI_AUDIO_SAMPLES 3840
 
-int16_t tx_buf[SINE_LEN * 2];
+int16_t tx_buf[SAI_AUDIO_SAMPLES];
 
 volatile uint32_t sai_half_count = 0;
 volatile uint32_t sai_full_count = 0;
+
+extern volatile uint32_t usb_write_pos;
+extern volatile uint8_t audio_start_pending;
+extern volatile uint8_t audio_stream_started;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
+static void MPU_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SAI1_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
-static void Fill_Sine_Buffer(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -93,10 +98,8 @@ int main(void)
 
   /* USER CODE END 1 */
 
-  /* Enable the CPU Cache */
-
-  /* Enable I-Cache---------------------------------------------------------*/
-  SCB_EnableICache();
+  /* MPU Configuration--------------------------------------------------------*/
+  MPU_Config();
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -123,31 +126,56 @@ int main(void)
   MX_I2C1_Init();
   MX_SAI1_Init();
   MX_USART3_UART_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   printf("\r\n--- Boot ---\r\n");
   printf("Checking I2C...\r\n");
   if (!WM8960_IsReady(&hi2c1))
   {
       printf("WM8960 NOT FOUND on I2C bus\r\n");
-      Error_Handler();
   }
-  printf("WM8960 ACK received\r\n");
-
-  HAL_StatusTypeDef init_result = WM8960_Init(&hi2c1);
-  printf("Init sequence result: %d (0=OK)\r\n", init_result);
-
-  Fill_Sine_Buffer();
-  HAL_StatusTypeDef tx_result = HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t*)tx_buf, SINE_LEN * 2);
-  printf("I2S TX start result: %d (0=OK)\r\n", tx_result);
+  else
+  {
+	  printf("WM8960 ACK received\r\n");
+	  HAL_StatusTypeDef init_result = WM8960_Init(&hi2c1);
+	  printf("Init sequence result: %d (0=OK)\r\n", init_result);
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_Delay(1000);
+	  static uint32_t last_print = 0;
 
-	  printf("I2S state=%d | Half=%lu | Full=%lu\r\n", HAL_SAI_GetState(&hsai_BlockA1), sai_half_count, sai_full_count);
+	  if (audio_start_pending && !audio_stream_started)
+	  {
+	      HAL_StatusTypeDef sai_result;
+	      sai_result = HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t *)tx_buf, SAI_AUDIO_SAMPLES);
+
+	      printf("HAL_SAI_Transmit_DMA result = %d\r\n", sai_result);
+
+	      if (sai_result == HAL_OK)
+	      {
+	          audio_stream_started = 1;
+	          audio_start_pending = 0;
+
+	          printf("I2S audio streaming started\r\n");
+	      }
+	      else
+	      {
+	          printf("I2S DMA START FAILED\r\n");
+	          audio_start_pending = 0;
+	      }
+	   }
+
+	   if ((HAL_GetTick() - last_print) >= 1000U)
+	   {
+	       last_print = HAL_GetTick();
+
+	       printf("I2S half=%lu full=%lu state=%d USB_write_pos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
+	              usb_write_pos, tx_buf[0], tx_buf[1], tx_buf[100], tx_buf[101]);
+	   }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -177,8 +205,9 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 2;
@@ -420,6 +449,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
@@ -428,16 +458,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-static void Fill_Sine_Buffer(void)
-{
-    for (int i = 0; i < SINE_LEN; i++)
-    {
-        int16_t sample = (int16_t)(3000 * sinf(2 * 3.14159f * 3 * i / SINE_LEN));
-        tx_buf[2*i]   = sample;
-        tx_buf[2*i+1] = sample;
-    }
-}
-
 void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai)
 {
     if (hsai == &hsai_BlockA1)
@@ -453,7 +473,37 @@ void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai)
         sai_full_count++;
     }
 }
+
 /* USER CODE END 4 */
+
+ /* MPU Configuration */
+
+void MPU_Config(void)
+{
+  MPU_Region_InitTypeDef MPU_InitStruct = {0};
+
+  /* Disables the MPU */
+  HAL_MPU_Disable();
+
+  /** Initializes and configures the Region and the memory to be protected
+  */
+  MPU_InitStruct.Enable = MPU_REGION_ENABLE;
+  MPU_InitStruct.Number = MPU_REGION_NUMBER0;
+  MPU_InitStruct.BaseAddress = 0x0;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_4GB;
+  MPU_InitStruct.SubRegionDisable = 0x87;
+  MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
+  MPU_InitStruct.AccessPermission = MPU_REGION_NO_ACCESS;
+  MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+  MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
+  MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+  MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
+
+  HAL_MPU_ConfigRegion(&MPU_InitStruct);
+  /* Enables the MPU */
+  HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
+
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
