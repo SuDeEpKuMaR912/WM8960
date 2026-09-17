@@ -3756,8 +3756,8 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
  8001bda:	73fb      	strb	r3, [r7, #15]
 
     //INPUT PGA GAIN: Left  = 0 dB, Right = 0 dB
-    ret |= wm8960_write(hi2c, 0x00, 0x117);
- 8001bdc:	f240 1217 	movw	r2, #279	@ 0x117
+    ret |= wm8960_write(hi2c, 0x00, 0x136);
+ 8001bdc:	f44f 729b 	mov.w	r2, #310	@ 0x136
  8001be0:	2100      	movs	r1, #0
  8001be2:	6878      	ldr	r0, [r7, #4]
  8001be4:	f7ff fed2 	bl	800198c <wm8960_write>
@@ -3766,8 +3766,8 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
  8001bec:	7bfb      	ldrb	r3, [r7, #15]
  8001bee:	4313      	orrs	r3, r2
  8001bf0:	73fb      	strb	r3, [r7, #15]
-    ret |= wm8960_write(hi2c, 0x01, 0x117);
- 8001bf2:	f240 1217 	movw	r2, #279	@ 0x117
+    ret |= wm8960_write(hi2c, 0x01, 0x136);
+ 8001bf2:	f44f 729b 	mov.w	r2, #310	@ 0x136
  8001bf6:	2101      	movs	r1, #1
  8001bf8:	6878      	ldr	r0, [r7, #4]
  8001bfa:	f7ff fec7 	bl	800198c <wm8960_write>
@@ -3802,8 +3802,8 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
  8001c30:	73fb      	strb	r3, [r7, #15]
 
     //Input boost mixers (left/right) — left at defaults for now
-    ret |= wm8960_write(hi2c, 0x20, 0x100);
- 8001c32:	f44f 7280 	mov.w	r2, #256	@ 0x100
+    ret |= wm8960_write(hi2c, 0x20, 0x118);
+ 8001c32:	f44f 728c 	mov.w	r2, #280	@ 0x118
  8001c36:	2120      	movs	r1, #32
  8001c38:	6878      	ldr	r0, [r7, #4]
  8001c3a:	f7ff fea7 	bl	800198c <wm8960_write>
@@ -3812,8 +3812,8 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
  8001c42:	7bfb      	ldrb	r3, [r7, #15]
  8001c44:	4313      	orrs	r3, r2
  8001c46:	73fb      	strb	r3, [r7, #15]
-    ret |= wm8960_write(hi2c, 0x21, 0x100);
- 8001c48:	f44f 7280 	mov.w	r2, #256	@ 0x100
+    ret |= wm8960_write(hi2c, 0x21, 0x118);
+ 8001c48:	f44f 728c 	mov.w	r2, #280	@ 0x118
  8001c4c:	2121      	movs	r1, #33	@ 0x21
  8001c4e:	6878      	ldr	r0, [r7, #4]
  8001c50:	f7ff fe9c 	bl	800198c <wm8960_write>

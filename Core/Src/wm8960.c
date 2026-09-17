@@ -62,8 +62,8 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     ret |= wm8960_write(hi2c, 0x16, 0x1C3);
 
     //INPUT PGA GAIN: Left  = 0 dB, Right = 0 dB
-    ret |= wm8960_write(hi2c, 0x00, 0x117);
-    ret |= wm8960_write(hi2c, 0x01, 0x117);
+    ret |= wm8960_write(hi2c, 0x00, 0x136);
+    ret |= wm8960_write(hi2c, 0x01, 0x136);
 
     //Power Mgmt 1 — VMID, VREF, AIN, ADC on
     ret |= wm8960_write(hi2c, 0x19, 0x0FC);
@@ -72,8 +72,8 @@ HAL_StatusTypeDef WM8960_Init(I2C_HandleTypeDef *hi2c)
     ret |= wm8960_write(hi2c, 0x1A, 0x1FB);
 
     //Input boost mixers (left/right) — left at defaults for now
-    ret |= wm8960_write(hi2c, 0x20, 0x100);
-    ret |= wm8960_write(hi2c, 0x21, 0x100);
+    ret |= wm8960_write(hi2c, 0x20, 0x118);
+    ret |= wm8960_write(hi2c, 0x21, 0x118);
 
     // DAC → left/right output mixers
     ret |= wm8960_write(hi2c, 0x22, 0x100);
