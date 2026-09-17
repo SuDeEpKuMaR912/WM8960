@@ -214,22 +214,18 @@ int main(void)
 
 	       for (uint32_t i = 0; i < SAI_AUDIO_SAMPLES; i += 2)
 	       {
-	           if (rx_buf[i] < left_min)
-	               left_min = rx_buf[i];
+	           int16_t L = rx_buf[i];
+	           int16_t R = rx_buf[i + 1];
 
-	           if (rx_buf[i] > left_max)
-	               left_max = rx_buf[i];
+	           if (L < left_min)  left_min = L;
+	           if (L > left_max)  left_max = L;
 
-	           if (rx_buf[i + 1] < right_min)
-	               right_min = rx_buf[i + 1];
-
-	           if (rx_buf[i + 1] > right_max)
-	               right_max = rx_buf[i + 1];
+	           if (R < right_min) right_min = R;
+	           if (R > right_max) right_max = R;
 	       }
 
-	       printf("TX H=%lu F=%lu | RX H=%lu F=%lu | "
-	           "L=[%d,%d] R=[%d,%d]\r\n", sai_half_count, sai_full_count, sai_rx_half_count, sai_rx_full_count,
-	           left_min, left_max, right_min, right_max);
+	       printf("L=[%d,%d] P-P=%d | R=[%d,%d] P-P=%d\r\n", left_min, left_max, left_max - left_min,
+	              right_min, right_max, right_max - right_min);
 	   }
     /* USER CODE END WHILE */
 
