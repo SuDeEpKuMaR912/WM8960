@@ -169,153 +169,219 @@ USBD_ClassTypeDef USBD_AUDIO =
 __ALIGN_BEGIN static uint8_t USBD_AUDIO_CfgDesc[USB_AUDIO_CONFIG_DESC_SIZ] __ALIGN_END =
 {
   /* Configuration 1 */
-  0x09,                                 /* bLength */
-  USB_DESC_TYPE_CONFIGURATION,          /* bDescriptorType */
-  LOBYTE(USB_AUDIO_CONFIG_DESC_SIZ),    /* wTotalLength */
+  0x09,
+  USB_DESC_TYPE_CONFIGURATION,
+  LOBYTE(USB_AUDIO_CONFIG_DESC_SIZ),
   HIBYTE(USB_AUDIO_CONFIG_DESC_SIZ),
-  0x02,                                 /* bNumInterfaces */
-  0x01,                                 /* bConfigurationValue */
-  0x00,                                 /* iConfiguration */
+  0x03,                                 /* bNumInterfaces: AC + AS-speaker + AS-mic (was 0x02) */
+  0x01,
+  0x00,
 #if (USBD_SELF_POWERED == 1U)
-  0xC0,                                 /* bmAttributes: Bus Powered according to user configuration */
+  0xC0,
 #else
-  0x80,                                 /* bmAttributes: Bus Powered according to user configuration */
-#endif /* USBD_SELF_POWERED */
-  USBD_MAX_POWER,                       /* MaxPower (mA) */
-  /* 09 byte*/
-
-  /* USB Speaker Standard interface descriptor */
-  AUDIO_INTERFACE_DESC_SIZE,            /* bLength */
-  USB_DESC_TYPE_INTERFACE,              /* bDescriptorType */
-  0x00,                                 /* bInterfaceNumber */
-  0x00,                                 /* bAlternateSetting */
-  0x00,                                 /* bNumEndpoints */
-  USB_DEVICE_CLASS_AUDIO,               /* bInterfaceClass */
-  AUDIO_SUBCLASS_AUDIOCONTROL,          /* bInterfaceSubClass */
-  AUDIO_PROTOCOL_UNDEFINED,             /* bInterfaceProtocol */
-  0x00,                                 /* iInterface */
-  /* 09 byte*/
-
-  /* USB Speaker Class-specific AC Interface Descriptor */
-  AUDIO_INTERFACE_DESC_SIZE,            /* bLength */
-  AUDIO_INTERFACE_DESCRIPTOR_TYPE,      /* bDescriptorType */
-  AUDIO_CONTROL_HEADER,                 /* bDescriptorSubtype */
-  0x00,          /* 1.00 */             /* bcdADC */
-  0x01,
-  0x27,                                 /* wTotalLength */
-  0x00,
-  0x01,                                 /* bInCollection */
-  0x01,                                 /* baInterfaceNr */
-  /* 09 byte*/
-
-  /* USB Speaker Input Terminal Descriptor */
-  AUDIO_INPUT_TERMINAL_DESC_SIZE,       /* bLength */
-  AUDIO_INTERFACE_DESCRIPTOR_TYPE,      /* bDescriptorType */
-  AUDIO_CONTROL_INPUT_TERMINAL,         /* bDescriptorSubtype */
-  0x01,                                 /* bTerminalID */
-  0x01,                                 /* wTerminalType AUDIO_TERMINAL_USB_STREAMING   0x0101 */
-  0x01,
-  0x00,                                 /* bAssocTerminal */
-  0x02,                                 /* bNrChannels */
-  0x03,                                 /* wChannelConfig: Left + Right */
-  0x00,
-  0x00,                                 /* iChannelNames */
-  0x00,                                 /* iTerminal */
-  /* 12 byte*/
-
-  /* USB Speaker Audio Feature Unit Descriptor */
-  0x09,                                 /* bLength */
-  AUDIO_INTERFACE_DESCRIPTOR_TYPE,      /* bDescriptorType */
-  AUDIO_CONTROL_FEATURE_UNIT,           /* bDescriptorSubtype */
-  AUDIO_OUT_STREAMING_CTRL,             /* bUnitID */
-  0x01,                                 /* bSourceID */
-  0x01,                                 /* bControlSize */
-  AUDIO_CONTROL_MUTE,                   /* bmaControls(0) */
-  0,                                    /* bmaControls(1) */
-  0x00,                                 /* iTerminal */
+  0x80,
+#endif
+  USBD_MAX_POWER,
   /* 09 byte */
 
-  /* USB Speaker Output Terminal Descriptor */
-  0x09,      /* bLength */
-  AUDIO_INTERFACE_DESCRIPTOR_TYPE,      /* bDescriptorType */
-  AUDIO_CONTROL_OUTPUT_TERMINAL,        /* bDescriptorSubtype */
-  0x03,                                 /* bTerminalID */
-  0x01,                                 /* wTerminalType  0x0301 */
+  /* Interface 0: Audio Control, standard */
+  AUDIO_INTERFACE_DESC_SIZE,
+  USB_DESC_TYPE_INTERFACE,
+  0x00, 0x00, 0x00,
+  USB_DEVICE_CLASS_AUDIO,
+  AUDIO_SUBCLASS_AUDIOCONTROL,
+  AUDIO_PROTOCOL_UNDEFINED,
+  0x00,
+  /* 09 byte */
+
+  /* Class-specific AC Interface Header -- now covers 2 streaming interfaces */
+  0x0A,                                 /* bLength: 8 + bInCollection(2) (was 0x09) */
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_CONTROL_HEADER,
+  0x00, 0x01,                           /* bcdADC 1.00 */
+  0x46, 0x00,                           /* wTotalLength = 70 = AC-only descriptors below (was 0x27) */
+  0x02,                                 /* bInCollection = 2 streaming interfaces (was 0x01) */
+  0x01, 0x02,                           /* baInterfaceNr: IF1, IF2 (was just 0x01) */
+  /* 10 byte */
+
+  /* Input Terminal 1: USB streaming -> feeds the speaker path (unchanged) */
+  AUDIO_INPUT_TERMINAL_DESC_SIZE,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_CONTROL_INPUT_TERMINAL,
+  0x01,
+  0x01, 0x01,                           /* wTerminalType 0x0101 USB streaming */
+  0x00,
+  0x02,
+  0x03, 0x00,                           /* L+R */
+  0x00, 0x00,
+  /* 12 byte */
+
+  /* Feature Unit 2: playback mute, source = Terminal 1 (unchanged) */
+  0x09,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_CONTROL_FEATURE_UNIT,
+  AUDIO_OUT_STREAMING_CTRL,             /* bUnitID = 2 */
+  0x01,                                 /* bSourceID = 1 */
+  0x01,
+  AUDIO_CONTROL_MUTE, 0,
+  0x00,
+  /* 09 byte */
+
+  /* Output Terminal 3: Speaker, source = Feature Unit 2 (unchanged) */
+  0x09,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_CONTROL_OUTPUT_TERMINAL,
   0x03,
-  0x00,                                 /* bAssocTerminal */
-  0x02,                                 /* bSourceID */
-  0x00,                                 /* iTerminal */
+  0x01, 0x03,                           /* wTerminalType 0x0301 Speaker */
+  0x00,
+  0x02,                                 /* bSourceID = 2 */
+  0x00,
   /* 09 byte */
 
-  /* USB Speaker Standard AS Interface Descriptor - Audio Streaming Zero Bandwidth */
-  /* Interface 1, Alternate Setting 0                                              */
-  AUDIO_INTERFACE_DESC_SIZE,            /* bLength */
-  USB_DESC_TYPE_INTERFACE,              /* bDescriptorType */
-  0x01,                                 /* bInterfaceNumber */
-  0x00,                                 /* bAlternateSetting */
-  0x00,                                 /* bNumEndpoints */
-  USB_DEVICE_CLASS_AUDIO,               /* bInterfaceClass */
-  AUDIO_SUBCLASS_AUDIOSTREAMING,        /* bInterfaceSubClass */
-  AUDIO_PROTOCOL_UNDEFINED,             /* bInterfaceProtocol */
-  0x00,                                 /* iInterface */
-  /* 09 byte*/
-
-  /* USB Speaker Standard AS Interface Descriptor - Audio Streaming Operational */
-  /* Interface 1, Alternate Setting 1                                           */
-  AUDIO_INTERFACE_DESC_SIZE,            /* bLength */
-  USB_DESC_TYPE_INTERFACE,              /* bDescriptorType */
-  0x01,                                 /* bInterfaceNumber */
-  0x01,                                 /* bAlternateSetting */
-  0x01,                                 /* bNumEndpoints */
-  USB_DEVICE_CLASS_AUDIO,               /* bInterfaceClass */
-  AUDIO_SUBCLASS_AUDIOSTREAMING,        /* bInterfaceSubClass */
-  AUDIO_PROTOCOL_UNDEFINED,             /* bInterfaceProtocol */
-  0x00,                                 /* iInterface */
-  /* 09 byte*/
-
-  /* USB Speaker Audio Streaming Interface Descriptor */
-  AUDIO_STREAMING_INTERFACE_DESC_SIZE,  /* bLength */
-  AUDIO_INTERFACE_DESCRIPTOR_TYPE,      /* bDescriptorType */
-  AUDIO_STREAMING_GENERAL,              /* bDescriptorSubtype */
-  0x01,                                 /* bTerminalLink */
-  0x01,                                 /* bDelay */
-  0x01,                                 /* wFormatTag AUDIO_FORMAT_PCM  0x0001 */
+  /* --- NEW: Input Terminal 4: Microphone --- */
+  AUDIO_INPUT_TERMINAL_DESC_SIZE,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_CONTROL_INPUT_TERMINAL,
+  0x04,
+  0x01, 0x02,                           /* wTerminalType 0x0201 Microphone */
   0x00,
-  /* 07 byte*/
+  0x02,                                 /* stereo, matches rx_buf's L/R layout */
+  0x03, 0x00,
+  0x00, 0x00,
+  /* 12 byte */
 
-  /* USB Speaker Audio Type III Format Interface Descriptor */
-  0x0B,                                 /* bLength */
-  AUDIO_INTERFACE_DESCRIPTOR_TYPE,      /* bDescriptorType */
-  AUDIO_STREAMING_FORMAT_TYPE,          /* bDescriptorSubtype */
-  AUDIO_FORMAT_TYPE_I,                  /* bFormatType */
-  0x02,                                 /* bNrChannels */
-  0x02,                                 /* bSubFrameSize :  2 Bytes per frame (16bits) */
-  16,                                   /* bBitResolution (16-bits per sample) */
-  0x01,                                 /* bSamFreqType only one frequency supported */
-  AUDIO_SAMPLE_FREQ(USBD_AUDIO_FREQ),   /* Audio sampling frequency coded on 3 bytes */
-  /* 11 byte*/
-
-  /* Endpoint 1 - Standard Descriptor */
-  AUDIO_STANDARD_ENDPOINT_DESC_SIZE,    /* bLength */
-  USB_DESC_TYPE_ENDPOINT,               /* bDescriptorType */
-  AUDIO_OUT_EP,                         /* bEndpointAddress 1 out endpoint */
-  USBD_EP_TYPE_ISOC,                    /* bmAttributes */
-  AUDIO_PACKET_SZE(USBD_AUDIO_FREQ),    /* wMaxPacketSize in Bytes (Freq(Samples)*2(Stereo)*2(HalfWord)) */
-  AUDIO_FS_BINTERVAL,                   /* bInterval */
-  0x00,                                 /* bRefresh */
-  0x00,                                 /* bSynchAddress */
-  /* 09 byte*/
-
-  /* Endpoint - Audio Streaming Descriptor */
-  AUDIO_STREAMING_ENDPOINT_DESC_SIZE,   /* bLength */
-  AUDIO_ENDPOINT_DESCRIPTOR_TYPE,       /* bDescriptorType */
-  AUDIO_ENDPOINT_GENERAL,               /* bDescriptor */
-  0x00,                                 /* bmAttributes */
-  0x00,                                 /* bLockDelayUnits */
-  0x00,                                 /* wLockDelay */
+  /* --- NEW: Feature Unit 5: mic mute, source = Terminal 4 --- */
+  0x09,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_CONTROL_FEATURE_UNIT,
+  AUDIO_IN_STREAMING_CTRL,              /* bUnitID = 5 */
+  0x04,                                 /* bSourceID = 4 */
+  0x01,
+  AUDIO_CONTROL_MUTE, 0,
   0x00,
-  /* 07 byte*/
-} ;
+  /* 09 byte */
+
+  /* --- NEW: Output Terminal 6: USB streaming, captured mic data to host --- */
+  0x09,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_CONTROL_OUTPUT_TERMINAL,
+  0x06,
+  0x01, 0x01,                           /* wTerminalType 0x0101 USB streaming */
+  0x00,
+  0x05,                                 /* bSourceID = 5 */
+  0x00,
+  /* 09 byte */
+
+  /* Interface 1, Alt 0 - zero bandwidth (unchanged) */
+  AUDIO_INTERFACE_DESC_SIZE,
+  USB_DESC_TYPE_INTERFACE,
+  0x01, 0x00, 0x00,
+  USB_DEVICE_CLASS_AUDIO,
+  AUDIO_SUBCLASS_AUDIOSTREAMING,
+  AUDIO_PROTOCOL_UNDEFINED,
+  0x00,
+  /* 09 byte */
+
+  /* Interface 1, Alt 1 - operational (unchanged) */
+  AUDIO_INTERFACE_DESC_SIZE,
+  USB_DESC_TYPE_INTERFACE,
+  0x01, 0x01, 0x01,
+  USB_DEVICE_CLASS_AUDIO,
+  AUDIO_SUBCLASS_AUDIOSTREAMING,
+  AUDIO_PROTOCOL_UNDEFINED,
+  0x00,
+  /* 09 byte */
+
+  /* Class-specific AS General, speaker (unchanged) */
+  AUDIO_STREAMING_INTERFACE_DESC_SIZE,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_STREAMING_GENERAL,
+  0x01,                                 /* bTerminalLink = Input Terminal 1 */
+  0x01,
+  0x01, 0x00,
+  /* 07 byte */
+
+  /* Format Type I, speaker (unchanged) */
+  0x0B,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_STREAMING_FORMAT_TYPE,
+  AUDIO_FORMAT_TYPE_I,
+  0x02, 0x02, 16, 0x01,
+  AUDIO_SAMPLE_FREQ(USBD_AUDIO_FREQ),
+  /* 11 byte */
+
+  /* Endpoint 1 OUT (unchanged) */
+  AUDIO_STANDARD_ENDPOINT_DESC_SIZE,
+  USB_DESC_TYPE_ENDPOINT,
+  AUDIO_OUT_EP,
+  USBD_EP_TYPE_ISOC,
+  AUDIO_PACKET_SZE(USBD_AUDIO_FREQ),
+  AUDIO_FS_BINTERVAL,
+  0x00, 0x00,
+  /* 09 byte */
+
+  /* Endpoint - Audio Streaming, OUT (unchanged) */
+  AUDIO_STREAMING_ENDPOINT_DESC_SIZE,
+  AUDIO_ENDPOINT_DESCRIPTOR_TYPE,
+  AUDIO_ENDPOINT_GENERAL,
+  0x00, 0x00, 0x00, 0x00,
+  /* 07 byte */
+
+  /* --- NEW: Interface 2, Alt 0 - zero bandwidth (mic) --- */
+  AUDIO_INTERFACE_DESC_SIZE,
+  USB_DESC_TYPE_INTERFACE,
+  0x02, 0x00, 0x00,
+  USB_DEVICE_CLASS_AUDIO,
+  AUDIO_SUBCLASS_AUDIOSTREAMING,
+  AUDIO_PROTOCOL_UNDEFINED,
+  0x00,
+  /* 09 byte */
+
+  /* --- NEW: Interface 2, Alt 1 - operational (mic) --- */
+  AUDIO_INTERFACE_DESC_SIZE,
+  USB_DESC_TYPE_INTERFACE,
+  0x02, 0x01, 0x01,
+  USB_DEVICE_CLASS_AUDIO,
+  AUDIO_SUBCLASS_AUDIOSTREAMING,
+  AUDIO_PROTOCOL_UNDEFINED,
+  0x00,
+  /* 09 byte */
+
+  /* --- NEW: Class-specific AS General, mic --- */
+  AUDIO_STREAMING_INTERFACE_DESC_SIZE,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_STREAMING_GENERAL,
+  0x06,                                 /* bTerminalLink = Output Terminal 6 */
+  0x01,
+  0x01, 0x00,
+  /* 07 byte */
+
+  /* --- NEW: Format Type I, mic -- same 48 kHz / 16-bit / stereo as rx_buf --- */
+  0x0B,
+  AUDIO_INTERFACE_DESCRIPTOR_TYPE,
+  AUDIO_STREAMING_FORMAT_TYPE,
+  AUDIO_FORMAT_TYPE_I,
+  0x02, 0x02, 16, 0x01,
+  AUDIO_SAMPLE_FREQ(USBD_AUDIO_FREQ),
+  /* 11 byte */
+
+  /* --- NEW: Endpoint 1 IN (mic), reuses the TX FIFO already reserved for EP1 --- */
+  AUDIO_STANDARD_ENDPOINT_DESC_SIZE,
+  USB_DESC_TYPE_ENDPOINT,
+  AUDIO_IN_EP,
+  USBD_EP_TYPE_ISOC,
+  AUDIO_PACKET_SZE(USBD_AUDIO_FREQ),
+  AUDIO_FS_BINTERVAL,
+  0x00, 0x00,
+  /* 09 byte */
+
+  /* --- NEW: Endpoint - Audio Streaming, IN --- */
+  AUDIO_STREAMING_ENDPOINT_DESC_SIZE,
+  AUDIO_ENDPOINT_DESCRIPTOR_TYPE,
+  AUDIO_ENDPOINT_GENERAL,
+  0x00, 0x00, 0x00, 0x00,
+  /* 07 byte */
+};
 
 /* USB Standard Device Descriptor */
 __ALIGN_BEGIN static uint8_t USBD_AUDIO_DeviceQualifierDesc[USB_LEN_DEV_QUALIFIER_DESC] __ALIGN_END =
@@ -334,6 +400,7 @@ __ALIGN_BEGIN static uint8_t USBD_AUDIO_DeviceQualifierDesc[USB_LEN_DEV_QUALIFIE
 #endif /* USE_USBD_COMPOSITE  */
 
 static uint8_t AUDIOOutEpAdd = AUDIO_OUT_EP;
+static uint8_t AUDIOInEpAdd  = AUDIO_IN_EP;      /* new */
 /**
   * @}
   */
@@ -402,6 +469,24 @@ static uint8_t USBD_AUDIO_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   (void)USBD_LL_PrepareReceive(pdev, AUDIOOutEpAdd, haudio->buffer,
                                AUDIO_OUT_PACKET);
 
+  /* --- new: open the mic IN endpoint --- */
+  if (pdev->dev_speed == USBD_SPEED_HIGH)
+  {
+    pdev->ep_in[AUDIOInEpAdd & 0xFU].bInterval = AUDIO_HS_BINTERVAL;
+  }
+  else
+  {
+    pdev->ep_in[AUDIOInEpAdd & 0xFU].bInterval = AUDIO_FS_BINTERVAL;
+  }
+
+  (void)USBD_LL_OpenEP(pdev, AUDIOInEpAdd, USBD_EP_TYPE_ISOC, AUDIO_IN_PACKET);
+  pdev->ep_in[AUDIOInEpAdd & 0xFU].is_used = 1U;
+
+  haudio->alt_setting_in = 0U;
+  haudio->in_rd_ptr = 0U;
+  haudio->in_wr_ptr = 0U;
+  memset(haudio->buffer_in, 0, sizeof(haudio->buffer_in));
+
   return (uint8_t)USBD_OK;
 }
 
@@ -434,6 +519,10 @@ static uint8_t USBD_AUDIO_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
     pdev->pClassDataCmsit[pdev->classId] = NULL;
     pdev->pClassData = NULL;
   }
+
+  (void)USBD_LL_CloseEP(pdev, AUDIOInEpAdd);
+  pdev->ep_in[AUDIOInEpAdd & 0xFU].is_used = 0U;
+  pdev->ep_in[AUDIOInEpAdd & 0xFU].bInterval = 0U;
 
   return (uint8_t)USBD_OK;
 }
@@ -516,7 +605,14 @@ static uint8_t USBD_AUDIO_Setup(USBD_HandleTypeDef *pdev,
         case USB_REQ_GET_INTERFACE:
           if (pdev->dev_state == USBD_STATE_CONFIGURED)
           {
-            (void)USBD_CtlSendData(pdev, (uint8_t *)&haudio->alt_setting, 1U);
+            if (req->wIndex == 0x02U)
+            {
+              (void)USBD_CtlSendData(pdev, (uint8_t *)&haudio->alt_setting_in, 1U);
+            }
+            else
+            {
+              (void)USBD_CtlSendData(pdev, (uint8_t *)&haudio->alt_setting, 1U);
+            }
           }
           else
           {
@@ -528,13 +624,27 @@ static uint8_t USBD_AUDIO_Setup(USBD_HandleTypeDef *pdev,
         case USB_REQ_SET_INTERFACE:
           if (pdev->dev_state == USBD_STATE_CONFIGURED)
           {
-            if ((uint8_t)(req->wValue) <= USBD_MAX_NUM_INTERFACES)
+            if (req->wIndex == 0x02U)                 /* Interface 2: microphone */
+            {
+              haudio->alt_setting_in = (uint8_t)(req->wValue);
+
+              if (haudio->alt_setting_in == 1U)
+              {
+                /* Host just opened the mic stream: arm the first IN packet */
+                haudio->in_rd_ptr = 0U;
+                (void)USBD_LL_Transmit(pdev, AUDIOInEpAdd, &haudio->buffer_in[0], AUDIO_IN_PACKET);
+              }
+              else
+              {
+                (void)USBD_LL_FlushEP(pdev, AUDIOInEpAdd);
+              }
+            }
+            else if ((uint8_t)(req->wValue) <= USBD_MAX_NUM_INTERFACES)  /* Interface 1: speaker */
             {
               haudio->alt_setting = (uint8_t)(req->wValue);
             }
             else
             {
-              /* Call the error management function (command will be NAKed */
               USBD_CtlError(pdev, req);
               ret = USBD_FAIL;
             }
@@ -587,10 +697,31 @@ static uint8_t *USBD_AUDIO_GetCfgDesc(uint16_t *length)
   */
 static uint8_t USBD_AUDIO_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-  UNUSED(pdev);
-  UNUSED(epnum);
+  USBD_AUDIO_HandleTypeDef *haudio;
 
-  /* Only OUT data are processed */
+  if (epnum != (AUDIOInEpAdd & 0x7FU))
+  {
+    return (uint8_t)USBD_OK;
+  }
+
+  haudio = (USBD_AUDIO_HandleTypeDef *)pdev->pClassDataCmsit[pdev->classId];
+  if (haudio == NULL)
+  {
+    return (uint8_t)USBD_FAIL;
+  }
+
+  if (haudio->alt_setting_in == 1U)
+  {
+    (void)USBD_LL_Transmit(pdev, AUDIOInEpAdd,
+                           &haudio->buffer_in[haudio->in_rd_ptr], AUDIO_IN_PACKET);
+
+    haudio->in_rd_ptr += AUDIO_IN_PACKET;
+    if (haudio->in_rd_ptr >= AUDIO_IN_TOTAL_BUF_SIZE)
+    {
+      haudio->in_rd_ptr = 0U;
+    }
+  }
+
   return (uint8_t)USBD_OK;
 }
 
@@ -720,6 +851,43 @@ void USBD_AUDIO_Sync(USBD_HandleTypeDef *pdev, AUDIO_OffsetTypeDef offset)
 }
 
 /**
+  * @brief  Pushes freshly-captured PCM data (from the SAI RX DMA callback) into
+  *         the ring buffer that USBD_AUDIO_DataIn() drains toward the host.
+  * @param  pdev: device instance
+  * @param  psrc: pointer to the newly-available PCM bytes
+  * @param  size: number of bytes
+  * @retval None
+  */
+void USBD_AUDIO_Record_Push(USBD_HandleTypeDef *pdev, uint8_t *psrc, uint32_t size)
+{
+  USBD_AUDIO_HandleTypeDef *haudio;
+
+  if (pdev->pClassDataCmsit[pdev->classId] == NULL)
+  {
+    return;
+  }
+
+  haudio = (USBD_AUDIO_HandleTypeDef *)pdev->pClassDataCmsit[pdev->classId];
+
+  if ((haudio->in_wr_ptr + size) <= AUDIO_IN_TOTAL_BUF_SIZE)
+  {
+    memcpy(&haudio->buffer_in[haudio->in_wr_ptr], psrc, size);
+  }
+  else
+  {
+    uint32_t first = AUDIO_IN_TOTAL_BUF_SIZE - haudio->in_wr_ptr;
+    memcpy(&haudio->buffer_in[haudio->in_wr_ptr], psrc, first);
+    memcpy(&haudio->buffer_in[0], psrc + first, size - first);
+  }
+
+  haudio->in_wr_ptr += (uint16_t)size;
+  if (haudio->in_wr_ptr >= AUDIO_IN_TOTAL_BUF_SIZE)
+  {
+    haudio->in_wr_ptr -= AUDIO_IN_TOTAL_BUF_SIZE;
+  }
+}
+
+/**
   * @brief  USBD_AUDIO_IsoINIncomplete
   *         handle data ISO IN Incomplete event
   * @param  pdev: device instance
@@ -728,9 +896,10 @@ void USBD_AUDIO_Sync(USBD_HandleTypeDef *pdev, AUDIO_OffsetTypeDef offset)
   */
 static uint8_t USBD_AUDIO_IsoINIncomplete(USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-  UNUSED(pdev);
-  UNUSED(epnum);
-
+  if (epnum == (AUDIOInEpAdd & 0x7FU))
+  {
+    (void)USBD_LL_FlushEP(pdev, AUDIOInEpAdd);
+  }
   return (uint8_t)USBD_OK;
 }
 /**

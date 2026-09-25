@@ -22,6 +22,8 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,15 +88,22 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-
+	__asm volatile
+	  (
+	    "TST LR, #4                \n"
+	    "ITE EQ                    \n"
+	    "MRSEQ R0, MSP              \n"
+	    "MRSNE R0, PSP              \n"
+	    "B HardFault_Handler_C     \n"
+	  );
   /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
 }
 
+void HardFault_Handler_C(uint32_t *stack)
+{
+  printf("HardFault! PC=0x%08lX LR=0x%08lX\r\n", stack[6], stack[5]);
+  while (1) { }
+}
 /**
   * @brief This function handles Memory management fault.
   */

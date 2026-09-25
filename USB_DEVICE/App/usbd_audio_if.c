@@ -310,7 +310,26 @@ void HalfTransfer_CallBack_FS(void)
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
+extern int16_t rx_buf[SAI_AUDIO_SAMPLES];
 
+/**
+  * @brief  Called from HAL_SAI_RxHalfCpltCallback (mic capture, first half ready).
+  */
+void RxHalfTransfer_CallBack_FS(void)
+{
+  USBD_AUDIO_Record_Push(&hUsbDeviceFS, (uint8_t *)rx_buf,
+                          (SAI_AUDIO_SAMPLES / 2U) * sizeof(int16_t));
+}
+
+/**
+  * @brief  Called from HAL_SAI_RxCpltCallback (mic capture, second half ready).
+  */
+void RxTransferComplete_CallBack_FS(void)
+{
+  USBD_AUDIO_Record_Push(&hUsbDeviceFS,
+                          (uint8_t *)rx_buf + (SAI_AUDIO_SAMPLES / 2U) * sizeof(int16_t),
+                          (SAI_AUDIO_SAMPLES / 2U) * sizeof(int16_t));
+}
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 
 /**

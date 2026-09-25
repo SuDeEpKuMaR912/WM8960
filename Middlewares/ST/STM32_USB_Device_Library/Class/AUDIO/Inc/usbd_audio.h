@@ -26,6 +26,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include  "usbd_ioreq.h"
+#include <string.h>
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
@@ -61,9 +62,19 @@ extern "C" {
 #define AUDIO_OUT_EP                                  0x01U
 #endif /* AUDIO_OUT_EP */
 
-#define USB_AUDIO_CONFIG_DESC_SIZ                     0x6DU
+#ifndef AUDIO_IN_EP
+#define AUDIO_IN_EP                                   0x81U   /* mic IN endpoint, reuses EP1's TX FIFO */
+#endif
+
+#define AUDIO_IN_STREAMING_CTRL                       0x05U   /* Feature Unit ID for the mic path */
+
+#define AUDIO_IN_PACKET            (uint16_t)(((USBD_AUDIO_FREQ * 2U * 2U) / 1000U))
+#define AUDIO_IN_PACKET_NUM                           80U
+#define AUDIO_IN_TOTAL_BUF_SIZE     ((uint16_t)(AUDIO_IN_PACKET * AUDIO_IN_PACKET_NUM))
+
+#define USB_AUDIO_CONFIG_DESC_SIZ                     0xC0U
 #define AUDIO_INTERFACE_DESC_SIZE                     0x09U
-#define USB_AUDIO_DESC_SIZ                            0x09U
+#define USB_AUDIO_DESC_SIZ                            0x0AU
 #define AUDIO_STANDARD_ENDPOINT_DESC_SIZE             0x09U
 #define AUDIO_STREAMING_ENDPOINT_DESC_SIZE            0x07U
 
@@ -149,13 +160,19 @@ typedef struct
 
 typedef struct
 {
-  uint32_t alt_setting;
-  uint8_t buffer[AUDIO_TOTAL_BUF_SIZE];
+  uint32_t alt_setting;         /* Interface 1 (speaker) alt setting — unchanged */
+  uint8_t  buffer[AUDIO_TOTAL_BUF_SIZE];
   AUDIO_OffsetTypeDef offset;
-  uint8_t rd_enable;
+  uint8_t  rd_enable;
   uint16_t rd_ptr;
   uint16_t wr_ptr;
   USBD_AUDIO_ControlTypeDef control;
+
+  /* --- new: microphone (IN) path --- */
+  uint32_t alt_setting_in;                    /* Interface 2 (mic) alt setting */
+  uint8_t  buffer_in[AUDIO_IN_TOTAL_BUF_SIZE];
+  uint16_t in_rd_ptr;
+  uint16_t in_wr_ptr;
 } USBD_AUDIO_HandleTypeDef;
 
 
@@ -309,6 +326,8 @@ uint8_t USBD_AUDIO_RegisterInterface(USBD_HandleTypeDef *pdev,
                                      USBD_AUDIO_ItfTypeDef *fops);
 
 void USBD_AUDIO_Sync(USBD_HandleTypeDef *pdev, AUDIO_OffsetTypeDef offset);
+
+void USBD_AUDIO_Record_Push(USBD_HandleTypeDef *pdev, uint8_t *psrc, uint32_t size);
 
 #ifdef USE_USBD_COMPOSITE
 uint32_t USBD_AUDIO_GetEpPcktSze(USBD_HandleTypeDef *pdev, uint8_t If, uint8_t Ep);

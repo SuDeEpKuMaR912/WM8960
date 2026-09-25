@@ -25,6 +25,7 @@
 #include "wm8960.h"
 #include <stdio.h>
 #include <string.h>
+#include "usbd_audio_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,6 +95,7 @@ void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai)
     if (hsai == &hsai_BlockB1)
     {
         sai_rx_half_count++;
+        RxHalfTransfer_CallBack_FS();        /* new */
     }
 }
 
@@ -102,6 +104,7 @@ void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai)
     if (hsai == &hsai_BlockB1)
     {
         sai_rx_full_count++;
+        RxTransferComplete_CallBack_FS();    /* new */
     }
 }
 /* USER CODE END 0 */

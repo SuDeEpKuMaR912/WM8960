@@ -115,7 +115,8 @@ void TransferComplete_CallBack_FS(void);
 void HalfTransfer_CallBack_FS(void);
 
 /* USER CODE BEGIN EXPORTED_FUNCTIONS */
-
+void RxHalfTransfer_CallBack_FS(void);
+void RxTransferComplete_CallBack_FS(void);
 /* USER CODE END EXPORTED_FUNCTIONS */
 
 /**

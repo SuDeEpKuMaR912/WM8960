@@ -7,3 +7,5 @@
 ../USB_DEVICE/App/usbd_audio_if.c:283:15:AUDIO_GetState_FS	1
 ../USB_DEVICE/App/usbd_audio_if.c:294:6:TransferComplete_CallBack_FS	1
 ../USB_DEVICE/App/usbd_audio_if.c:305:6:HalfTransfer_CallBack_FS	1
+../USB_DEVICE/App/usbd_audio_if.c:318:6:RxHalfTransfer_CallBack_FS	1
+../USB_DEVICE/App/usbd_audio_if.c:327:6:RxTransferComplete_CallBack_FS	1
