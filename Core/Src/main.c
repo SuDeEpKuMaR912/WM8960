@@ -57,9 +57,12 @@ UART_HandleTypeDef huart3;
 #define SAI_AUDIO_SAMPLES 3840
 
 int16_t tx_buf[SAI_AUDIO_SAMPLES];
+int16_t rx_buf[SAI_AUDIO_SAMPLES];
 
 volatile uint32_t sai_half_count = 0;
 volatile uint32_t sai_full_count = 0;
+volatile uint32_t sai_rx_half_count = 0;
+volatile uint32_t sai_rx_full_count = 0;
 
 extern volatile uint32_t usb_write_pos;
 extern volatile uint8_t audio_start_pending;
@@ -84,6 +87,22 @@ int _write(int file, char *ptr, int len)
 {
     HAL_UART_Transmit(&huart3, (uint8_t*)ptr, len, HAL_MAX_DELAY);
     return len;
+}
+
+void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai)
+{
+    if (hsai == &hsai_BlockB1)
+    {
+        sai_rx_half_count++;
+    }
+}
+
+void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai)
+{
+    if (hsai == &hsai_BlockB1)
+    {
+        sai_rx_full_count++;
+    }
 }
 /* USER CODE END 0 */
 
@@ -151,20 +170,35 @@ int main(void)
 	  if (audio_start_pending && !audio_stream_started)
 	  {
 	      HAL_StatusTypeDef sai_result;
+
+	      memset(tx_buf, 0, sizeof(tx_buf));
+	      memset(rx_buf, 0, sizeof(rx_buf));
+
 	      sai_result = HAL_SAI_Transmit_DMA(&hsai_BlockA1, (uint8_t *)tx_buf, SAI_AUDIO_SAMPLES);
 
 	      printf("HAL_SAI_Transmit_DMA result = %d\r\n", sai_result);
 
 	      if (sai_result == HAL_OK)
 	      {
-	          audio_stream_started = 1;
-	          audio_start_pending = 0;
+	          sai_result = HAL_SAI_Receive_DMA(&hsai_BlockB1, (uint8_t *)rx_buf, SAI_AUDIO_SAMPLES);
+	          printf("HAL_SAI_Receive_DMA result = %d\r\n", sai_result);
 
-	          printf("I2S audio streaming started\r\n");
+	          if (sai_result == HAL_OK)
+	          {
+	              audio_stream_started = 1;
+	              audio_start_pending = 0;
+	              printf("I2S TX + RX streaming started\r\n");
+	          }
+	          else
+	          {
+	              printf("I2S RX DMA START FAILED\r\n");
+	              HAL_SAI_DMAStop(&hsai_BlockA1);
+	              audio_start_pending = 0;
+	          }
 	      }
 	      else
 	      {
-	          printf("I2S DMA START FAILED\r\n");
+	          printf("I2S TX DMA START FAILED\r\n");
 	          audio_start_pending = 0;
 	      }
 	   }
@@ -173,8 +207,25 @@ int main(void)
 	   {
 	       last_print = HAL_GetTick();
 
-	       printf("I2S half=%lu full=%lu state=%d USB_write_pos=%lu samples=%d,%d,%d,%d\r\n", sai_half_count, sai_full_count, HAL_SAI_GetState(&hsai_BlockA1),
-	              usb_write_pos, tx_buf[0], tx_buf[1], tx_buf[100], tx_buf[101]);
+	       int16_t left_min = 32767;
+	       int16_t left_max = -32768;
+	       int16_t right_min = 32767;
+	       int16_t right_max = -32768;
+
+	       for (uint32_t i = 0; i < SAI_AUDIO_SAMPLES; i += 2)
+	       {
+	           int16_t L = rx_buf[i];
+	           int16_t R = rx_buf[i + 1];
+
+	           if (L < left_min)  left_min = L;
+	           if (L > left_max)  left_max = L;
+
+	           if (R < right_min) right_min = R;
+	           if (R > right_max) right_max = R;
+	       }
+
+	       printf("L=[%d,%d] P-P=%d | R=[%d,%d] P-P=%d\r\n", left_min, left_max, left_max - left_min,
+	              right_min, right_max, right_max - right_min);
 	   }
     /* USER CODE END WHILE */
 
